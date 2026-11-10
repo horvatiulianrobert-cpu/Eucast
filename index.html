@@ -324,7 +324,7 @@
             ],
             "Stenotrophomonas maltophilia": [
                 { name: "Cotrimoxazol (SXT)", zone: { S: 16, R: 16 }, mic: { S: 4, R: 4 }, comment: "Tratament de elecție de primă linie." },
-                { name: "Levofloxacin", zone: { S: 19, R: 19 }, mic: { S: 2, R: 2 }, comment: "Opțiune alternativă fluoroquinolonică." },
+                { name: "Levofloxacin", zone: { S: 19, R: 19 }, mic: { S: 2, R: 2 }, comment: "Opțiune alternativă conform CLSI." },
                 { name: "Carbapeneme / Beta-lactame", zone: { S: 0, R: 0 }, mic: { S: 0, R: 0 }, comment: "REZISTENT NATURAL la Carbapeneme (producție de metallo-beta-lactamază L1)." }
             ],
             "Staphylococcus aureus": [
