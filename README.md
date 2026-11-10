@@ -1,4 +1,3 @@
-[index.html](https://github.com/user-attachments/files/34554738/index.html)
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -33,7 +32,7 @@
                 <div>
                     <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
                         EUCAST Smart Interpreter 
-                        <span class="text-[10px] bg-blue-500/30 text-blue-200 px-2 py-0.5 rounded-full border border-blue-400/30">v14.0 Compliant</span>
+                        <span class="text-[10px] bg-blue-500/30 text-blue-200 px-2 py-0.5 rounded-full border border-blue-400/30">v14.0/v16.1 Compliant</span>
                     </h1>
                     <p class="text-xs text-blue-200">Sistem automatizat de evaluare antibiograme & generare rapoarte clinice</p>
                 </div>
@@ -69,13 +68,14 @@
 
                 <!-- Sample Type -->
                 <div class="md:col-span-3">
-                    <label class="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wider">Tip Probă Biologicală</label>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wider">Tip Probă Biologică</label>
                     <select id="sampleType" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
                         <option value="Urocultură">Urocultură</option>
                         <option value="Hemocultură">Hemocultură</option>
-                        <option value="Exudat / Secretie">Exudat / Secretie Faringiană/Purulentă</option>
+                        <option value="Exudat / Secretie">Exudat / Secreție Faringiană/Purulentă</option>
                         <option value="Aspirat Bronșic / Spută">Aspirat Bronșic / Spută</option>
                         <option value="Lichid Cefalorahidian (LCR)">Lichid Cefalorahidian (LCR)</option>
+                        <option value="Plagă / Secretie Purulentă">Plagă / Secreție Purulentă</option>
                         <option value="Altele">Altele</option>
                     </select>
                 </div>
@@ -151,7 +151,7 @@
                         </div>
                         <div>
                             <h2 class="text-xl font-bold text-slate-900">BULETIN DE INTERPRETARE ANTIBIOGRAMĂ</h2>
-                            <p class="text-xs font-medium text-slate-500">Conform Criteriilor și Breakpoint-urilor EUCAST v14.0</p>
+                            <p class="text-xs font-medium text-slate-500">Conform Criteriilor și Breakpoint-urilor EUCAST</p>
                         </div>
                     </div>
                     <div class="text-right text-xs text-slate-500">
@@ -194,7 +194,6 @@
                         </tr>
                     </thead>
                     <tbody id="reportTableBody" class="divide-y divide-slate-200 text-xs">
-                        <!-- Dynamic Rows -->
                         <tr>
                             <td colspan="5" class="py-10 text-center text-slate-400 italic">
                                 Nu au fost introduse date. Completați valorile în formularul de mai sus și apăsați "Generează Raport Final".
@@ -223,30 +222,86 @@
 
     <!-- DATABASE & LOGIC -->
     <script>
-        // EXPANDABLE EUCAST DATABASE
-        // Utilitate: Se pot adăuga / edita specii, antibiotice, breakpoint-uri și comentarii clinice.
+        // EXTENDED EUCAST DATABASE WITH ACCURATE BREAKPOINTS & COMMENTS
         const eucastDatabase = {
             "Escherichia coli": [
-                { name: "Ampicilină", zone: { S: 14, R: 14 }, mic: { S: 8, R: 8 }, comment: "Inactivă pe tulpini producătoare de β-lactamaze. Raportați rezistență dacă izolatul e ESBL." },
-                { name: "Amoxicilină-ac. clavulanic (UTI)", zone: { S: 19, R: 19 }, mic: { S: 32, R: 32 }, comment: "Criterii specifice doar pentru infecții urinare joase necomplicate." },
-                { name: "Cefotaxim", zone: { S: 22, R: 19 }, mic: { S: 1, R: 2 }, comment: "Cefalosporină gen. 3. Zonă < 25 mm indică necesitatea screeningului ESBL." },
-                { name: "Ceftriaxon", zone: { S: 25, R: 22 }, mic: { S: 1, R: 2 }, comment: "Marker principal de screening pentru producția de ESBL." },
-                { name: "Cefepim", zone: { S: 27, R: 24 }, mic: { S: 1, R: 4 }, comment: "Cefalosporină gen. 4. Activă pe unele tulpini producătoare de AmpC." },
-                { name: "Meropenem", zone: { S: 22, R: 16 }, mic: { S: 2, R: 8 }, comment: "Carbapenem. Diametru 16-21 mm necesită testare confirmatorie pentru Carbapenemaze." },
+                { name: "Ampicilină", zone: { S: 14, R: 14 }, mic: { S: 8, R: 8 }, comment: "Inactivă pe tulpini producătoare de β-lactamaze. Raportați R dacă este ESBL." },
+                { name: "Amoxicilină-ac. clavulanic (UTI)", zone: { S: 19, R: 19 }, mic: { S: 32, R: 32 }, comment: "Criterii valabile exclusiv pentru infecții urinare joase necomplicate." },
+                { name: "Amoxicilină-ac. clavulanic (Sistemic)", zone: { S: 19, R: 19 }, mic: { S: 8, R: 8 }, comment: "Pentru infecții sistemice/parenchimatoase." },
+                { name: "Piperacilină-tazobactam", zone: { S: 20, R: 20 }, mic: { S: 8, R: 16 }, comment: "Inactiv pe producători de carbapenemaze." },
+                { name: "Cefotaxim", zone: { S: 22, R: 19 }, mic: { S: 1, R: 2 }, comment: "Zonă < 25 mm indică necesitatea screeningului ESBL." },
+                { name: "Ceftriaxon", zone: { S: 25, R: 22 }, mic: { S: 1, R: 2 }, comment: "Marker principal de screening ESBL." },
+                { name: "Ceftazidim", zone: { S: 22, R: 19 }, mic: { S: 1, R: 4 }, comment: "Evaluare rezistență cefalosporine gen. 3." },
+                { name: "Cefepim", zone: { S: 27, R: 24 }, mic: { S: 1, R: 4 }, comment: "Cefalosporină gen. 4." },
+                { name: "Meropenem", zone: { S: 22, R: 16 }, mic: { S: 2, R: 8 }, comment: "Diametru 16-21 mm necesită test confirmatoriu pentru Carbapenemaze." },
+                { name: "Ertapenem", zone: { S: 25, R: 22 }, mic: { S: 0.5, R: 1 }, comment: "Cea mai sensibilă carbapenemă pentru screening de carbapenemaze." },
                 { name: "Ciprofloxacin", zone: { S: 25, R: 22 }, mic: { S: 0.25, R: 0.5 }, comment: "Atenție la mutațiile de nivel scăzut gyrA/parC." },
-                { name: "Gentamicină", zone: { S: 17, R: 17 }, mic: { S: 2, R: 2 }, comment: "Aminoglicozid standard pentru tratament combinat." },
+                { name: "Levofloxacin", zone: { S: 22, R: 19 }, mic: { S: 0.5, R: 1 }, comment: "Fluoroquinolonă." },
+                { name: "Gentamicină", zone: { S: 17, R: 17 }, mic: { S: 2, R: 2 }, comment: "Aminoglicozid." },
+                { name: "Amikacină", zone: { S: 18, R: 15 }, mic: { S: 8, R: 16 }, comment: "Aminoglicozid." },
+                { name: "Tobramicină", zone: { S: 17, R: 17 }, mic: { S: 2, R: 2 }, comment: "Aminoglicozid." },
                 { name: "Fosfomicină (doar UTI)", zone: { S: 24, R: 24 }, mic: { S: 8, R: 8 }, comment: "Aprobat exclusiv pentru cistite acute necomplicate." },
-                { name: "Nitrofurantoină", zone: { S: 11, R: 11 }, mic: { S: 64, R: 64 }, comment: "Limitat la infecții urinare necomplicate. Inactiv în parenchim/pielonefrite." },
-                { name: "Cotrimoxazol (SXT)", zone: { S: 16, R: 13 }, mic: { S: 2, R: 4 }, comment: "Trimetoprim-Sulfametoxazol." }
+                { name: "Nitrofurantoină (doar UTI)", zone: { S: 11, R: 11 }, mic: { S: 64, R: 64 }, comment: "Limitat la infecții urinare necomplicate. Inactiv în pielonefrite." },
+                { name: "Cotrimoxazol (SXT)", zone: { S: 16, R: 13 }, mic: { S: 2, R: 4 }, comment: "Trimetoprim-Sulfametoxazol." },
+                { name: "Colistină", zone: { S: 0, R: 0 }, mic: { S: 2, R: 2 }, comment: "CRITICAL: Difuzia pe disc NU este validă pentru Colistină! Determinați doar CMI." }
             ],
             "Klebsiella pneumoniae": [
-                { name: "Amoxicilină-ac. clavulanic", zone: { S: 18, R: 18 }, mic: { S: 8, R: 8 }, comment: "K. pneumoniae este inerent rezistentă la Ampicilină (gene SHV-1)." },
+                { name: "Amoxicilină-ac. clavulanic", zone: { S: 18, R: 18 }, mic: { S: 8, R: 8 }, comment: "Inerent REZISTENTĂ la Ampicilină simplă (gene SHV chromozomiale)." },
+                { name: "Piperacilină-tazobactam", zone: { S: 20, R: 20 }, mic: { S: 8, R: 16 }, comment: "Evaluare infecții severe." },
                 { name: "Ceftazidim", zone: { S: 22, R: 19 }, mic: { S: 1, R: 4 }, comment: "Evaluare ESBL / AmpC." },
                 { name: "Ceftriaxon", zone: { S: 25, R: 22 }, mic: { S: 1, R: 2 }, comment: "Cefalosporină gen. 3." },
+                { name: "Cefepim", zone: { S: 27, R: 24 }, mic: { S: 1, R: 4 }, comment: "Cefalosporină gen. 4." },
                 { name: "Meropenem", zone: { S: 22, R: 16 }, mic: { S: 2, R: 8 }, comment: "Verificați producătorii de KPC, NDM sau OXA-48 dacă zona < 22 mm." },
+                { name: "Ertapenem", zone: { S: 25, R: 22 }, mic: { S: 0.5, R: 1 }, comment: "Screening carbapenemaze." },
                 { name: "Ciprofloxacin", zone: { S: 25, R: 22 }, mic: { S: 0.25, R: 0.5 }, comment: "Fluoroquinolonă." },
+                { name: "Gentamicină", zone: { S: 17, R: 17 }, mic: { S: 2, R: 2 }, comment: "Aminoglicozid." },
                 { name: "Amikacină", zone: { S: 18, R: 15 }, mic: { S: 8, R: 16 }, comment: "Aminoglicozid de elecție pentru izolate multirezistente." },
+                { name: "Cotrimoxazol (SXT)", zone: { S: 16, R: 13 }, mic: { S: 2, R: 4 }, comment: "Trimetoprim-Sulfametoxazol." },
                 { name: "Colistină", zone: { S: 0, R: 0 }, mic: { S: 2, R: 2 }, comment: "CRITICAL: Difuzia pe disc NU este validă pentru Colistină! Determinați doar CMI." }
+            ],
+            "Klebsiella oxytoca": [
+                { name: "Amoxicilină-ac. clavulanic", zone: { S: 18, R: 18 }, mic: { S: 8, R: 8 }, comment: "Inerent rezistentă la ampicilină (producție de K1 β-lactamază)." },
+                { name: "Cefotaxim", zone: { S: 22, R: 19 }, mic: { S: 1, R: 2 }, comment: "Supraexprimarea K1 poate da rezistență la Cefuroxim/Aztreonam." },
+                { name: "Ceftriaxon", zone: { S: 25, R: 22 }, mic: { S: 1, R: 2 }, comment: "Cefalosporină gen. 3." },
+                { name: "Meropenem", zone: { S: 22, R: 16 }, mic: { S: 2, R: 8 }, comment: "Carbapenem." },
+                { name: "Ciprofloxacin", zone: { S: 25, R: 22 }, mic: { S: 0.25, R: 0.5 }, comment: "Fluoroquinolonă." },
+                { name: "Amikacină", zone: { S: 18, R: 15 }, mic: { S: 8, R: 16 }, comment: "Aminoglicozid." }
+            ],
+            "Proteus mirabilis": [
+                { name: "Ampicilină", zone: { S: 14, R: 14 }, mic: { S: 8, R: 8 }, comment: "Sensibilă natural la ampicilină (spre deosebire de Proteus vulgaris)." },
+                { name: "Amoxicilină-ac. clavulanic", zone: { S: 19, R: 19 }, mic: { S: 8, R: 8 }, comment: "Inhibitor de beta-lactamază." },
+                { name: "Ceftriaxon", zone: { S: 25, R: 22 }, mic: { S: 1, R: 2 }, comment: "Cefalosporină gen. 3." },
+                { name: "Meropenem", zone: { S: 22, R: 16 }, mic: { S: 2, R: 8 }, comment: "Carbapenem." },
+                { name: "Ciprofloxacin", zone: { S: 25, R: 22 }, mic: { S: 0.25, R: 0.5 }, comment: "Fluoroquinolonă." },
+                { name: "Nitrofurantoină", zone: { S: 0, R: 0 }, mic: { S: 0, R: 0 }, comment: "REZISTENT NATURAL: Proteus spp. sunt inerent rezistente la Nitrofurantoină." },
+                { name: "Colistină", zone: { S: 0, R: 0 }, mic: { S: 0, R: 0 }, comment: "REZISTENT NATURAL: Proteus spp. sunt inerent rezistente la Colistină." }
+            ],
+            "Enterobacter cloacae complex": [
+                { name: "Ampicilină / Augmentin", zone: { S: 0, R: 0 }, mic: { S: 0, R: 0 }, comment: "REZISTENT NATURAL datorită β-lactamazei AmpC cromozomiale inductibile." },
+                { name: "Cefotaxim / Ceftriaxon", zone: { S: 22, R: 19 }, mic: { S: 1, R: 2 }, comment: "Risc de selectare a mutanților dereprimați AmpC în timpul terapiei." },
+                { name: "Cefepim", zone: { S: 27, R: 24 }, mic: { S: 1, R: 4 }, comment: "Opțiune preferată dintre cefalosporine (stabilă la AmpC)." },
+                { name: "Piperacilină-tazobactam", zone: { S: 20, R: 20 }, mic: { S: 8, R: 16 }, comment: "Utilizați cu precauție în infecții cu încărcătură bacteriană mare." },
+                { name: "Meropenem", zone: { S: 22, R: 16 }, mic: { S: 2, R: 8 }, comment: "Carbapenemă de elecție." },
+                { name: "Ciprofloxacin", zone: { S: 25, R: 22 }, mic: { S: 0.25, R: 0.5 }, comment: "Fluoroquinolonă." },
+                { name: "Amikacină", zone: { S: 18, R: 15 }, mic: { S: 8, R: 16 }, comment: "Aminoglicozid." }
+            ],
+            "Citrobacter freundii": [
+                { name: "Ampicilină / Augmentin", zone: { S: 0, R: 0 }, mic: { S: 0, R: 0 }, comment: "REZISTENT NATURAL (AmpC cromozomial)." },
+                { name: "Cefepim", zone: { S: 27, R: 24 }, mic: { S: 1, R: 4 }, comment: "Stabil la AmpC." },
+                { name: "Meropenem", zone: { S: 22, R: 16 }, mic: { S: 2, R: 8 }, comment: "Carbapenem." },
+                { name: "Ciprofloxacin", zone: { S: 25, R: 22 }, mic: { S: 0.25, R: 0.5 }, comment: "Fluoroquinolonă." }
+            ],
+            "Morganella morganii": [
+                { name: "Ampicilină / Augmentin", zone: { S: 0, R: 0 }, mic: { S: 0, R: 0 }, comment: "REZISTENT NATURAL (AmpC cromozomial)." },
+                { name: "Ceftriaxon", zone: { S: 25, R: 22 }, mic: { S: 1, R: 2 }, comment: "Cefalosporină gen. 3." },
+                { name: "Meropenem", zone: { S: 22, R: 16 }, mic: { S: 2, R: 8 }, comment: "Carbapenem." },
+                { name: "Colistină / Nitrofurantoină", zone: { S: 0, R: 0 }, mic: { S: 0, R: 0 }, comment: "REZISTENT NATURAL la Colistină și Nitrofurantoină." }
+            ],
+            "Serratia marcescens": [
+                { name: "Ampicilină / Augmentin", zone: { S: 0, R: 0 }, mic: { S: 0, R: 0 }, comment: "REZISTENT NATURAL (AmpC cromozomial)." },
+                { name: "Cefepim", zone: { S: 27, R: 24 }, mic: { S: 1, R: 4 }, comment: "Stabil la AmpC." },
+                { name: "Meropenem", zone: { S: 22, R: 16 }, mic: { S: 2, R: 8 }, comment: "Carbapenem." },
+                { name: "Colistină", zone: { S: 0, R: 0 }, mic: { S: 0, R: 0 }, comment: "REZISTENT NATURAL la Colistină." }
             ],
             "Pseudomonas aeruginosa": [
                 { name: "Piperacilină-tazobactam", zone: { S: 18, R: 18 }, mic: { S: 16, R: 16 }, comment: "Doza standard este ridicată (4g x 4/zi)." },
@@ -254,33 +309,77 @@
                 { name: "Cefepim", zone: { S: 18, R: 18 }, mic: { S: 8, R: 8 }, comment: "Necesită doze crescute (2g x 3/zi)." },
                 { name: "Meropenem", zone: { S: 24, R: 18 }, mic: { S: 2, R: 8 }, comment: "Risc de selectare a rezistenței prin porina OprD în timpul terapiei." },
                 { name: "Ciprofloxacin", zone: { S: 26, R: 26 }, mic: { S: 0.5, R: 0.5 }, comment: "Singurul antipseudomonas cu administrare orală." },
-                { name: "Tobramicină", zone: { S: 17, R: 17 }, mic: { S: 2, R: 2 }, comment: "Mai activă decât gentamicina pe P. aeruginosa." }
+                { name: "Tobramicină", zone: { S: 17, R: 17 }, mic: { S: 2, R: 2 }, comment: "Mai activă decât gentamicina pe P. aeruginosa." },
+                { name: "Amikacină", zone: { S: 18, R: 15 }, mic: { S: 8, R: 16 }, comment: "Aminoglicozid." },
+                { name: "Colistină", zone: { S: 0, R: 0 }, mic: { S: 2, R: 2 }, comment: "CRITICAL: Difuzia pe disc NU este validă pentru Colistină! Determinați doar CMI." }
+            ],
+            "Acinetobacter baumannii complex": [
+                { name: "Meropenem", zone: { S: 21, R: 15 }, mic: { S: 2, R: 8 }, comment: "Carbapenemă de elecție." },
+                { name: "Imipenem", zone: { S: 23, R: 17 }, mic: { S: 2, R: 8 }, comment: "Carbapenem." },
+                { name: "Amikacină", zone: { S: 18, R: 15 }, mic: { S: 8, R: 16 }, comment: "Aminoglicozid." },
+                { name: "Gentamicină", zone: { S: 17, R: 14 }, mic: { S: 4, R: 8 }, comment: "Aminoglicozid." },
+                { name: "Ciprofloxacin", zone: { S: 21, R: 18 }, mic: { S: 1, R: 2 }, comment: "Fluoroquinolonă." },
+                { name: "Cotrimoxazol (SXT)", zone: { S: 19, R: 16 }, mic: { S: 2, R: 4 }, comment: "Trimetoprim-Sulfametoxazol." },
+                { name: "Colistină", zone: { S: 0, R: 0 }, mic: { S: 2, R: 2 }, comment: "CRITICAL: Doar determinarea CMI este validă conform EUCAST." }
+            ],
+            "Stenotrophomonas maltophilia": [
+                { name: "Cotrimoxazol (SXT)", zone: { S: 16, R: 16 }, mic: { S: 4, R: 4 }, comment: "Tratament de elecție de primă linie." },
+                { name: "Levofloxacin", zone: { S: 19, R: 19 }, mic: { S: 2, R: 2 }, comment: "Opțiune alternativă fluoroquinolonică." },
+                { name: "Carbapeneme / Beta-lactame", zone: { S: 0, R: 0 }, mic: { S: 0, R: 0 }, comment: "REZISTENT NATURAL la Carbapeneme (producție de metallo-beta-lactamază L1)." }
             ],
             "Staphylococcus aureus": [
-                { name: "Cefoxitin (Screening MRSA)", zone: { S: 22, R: 22 }, mic: { S: 4, R: 4 }, comment: "SURROGAT MRSA: Zona ≥22mm indica tulpina MSSA (Sensibil la Oxacilină, Augmentin, Carbapeneme)." },
+                { name: "Cefoxitin (Screening MRSA)", zone: { S: 22, R: 22 }, mic: { S: 4, R: 4 }, comment: "SURROGAT MRSA: Zona ≥22mm indica MSSA (Sensibil la Oxacilină, Augmentin, Carbapeneme)." },
+                { name: "Penicilină G", zone: { S: 26, R: 26 }, mic: { S: 0.12, R: 0.12 }, comment: "Verificați dacă marginea zonei este netedă/abruptă (cliff zone = penicillinase +)." },
                 { name: "Eritromicină", zone: { S: 23, R: 18 }, mic: { S: 1, R: 2 }, comment: "Dacă este Rezistent, efectuați D-Test pentru rezistență inductibilă la Clindamicină." },
                 { name: "Clindamicină", zone: { S: 22, R: 19 }, mic: { S: 0.25, R: 0.5 }, comment: "Urmăriți fenomenul de aplatizare a zonei (D-Test pozitiv)." },
                 { name: "Ciprofloxacin", zone: { S: 20, R: 20 }, mic: { S: 1, R: 1 }, comment: "Nu se folosește ca monoterapie în infecții severe." },
+                { name: "Gentamicină", zone: { S: 18, R: 18 }, mic: { S: 1, R: 1 }, comment: "Aminoglicozid." },
                 { name: "Vancomicină", zone: { S: 0, R: 0 }, mic: { S: 2, R: 2 }, comment: "CRITICAL: Difuzia pe disc ESTE INVALIDĂ pentru Vancomicină la Stafilococ. Determinați doar CMI!" },
+                { name: "Teicoplanină", zone: { S: 0, R: 0 }, mic: { S: 2, R: 2 }, comment: "Determinați CMI conform ghidului EUCAST." },
                 { name: "Linezolid", zone: { S: 21, R: 21 }, mic: { S: 4, R: 4 }, comment: "Activ pe tulpini MRSA." },
-                { name: "Cotrimoxazol (SXT)", zone: { S: 17, R: 14 }, mic: { S: 2, R: 4 }, comment: "Opțiune orală excelentă pentru MRSA comunitar." }
+                { name: "Rifampicină", zone: { S: 26, R: 22 }, mic: { S: 0.06, R: 0.5 }, comment: "Utilizat exclusiv în combinații (ex: infecții de proteză)." },
+                { name: "Cotrimoxazol (SXT)", zone: { S: 17, R: 14 }, mic: { S: 2, R: 4 }, comment: "Opțiune orală excelentă pentru MRSA." }
+            ],
+            "Staphylococcus epidermidis / Lugdunensis": [
+                { name: "Cefoxitin (Screening MRSE)", zone: { S: 25, R: 25 }, mic: { S: 4, R: 4 }, comment: "Breakpoints de screening specifice Stafilococilor Coagulazo-Negativi (CoNS)." },
+                { name: "Eritromicină", zone: { S: 23, R: 18 }, mic: { S: 1, R: 2 }, comment: "Macrolid." },
+                { name: "Clindamicină", zone: { S: 22, R: 19 }, mic: { S: 0.25, R: 0.5 }, comment: "Lincosamidă." },
+                { name: "Vancomicină", zone: { S: 0, R: 0 }, mic: { S: 4, R: 4 }, comment: "Difuzia pe disc invalidă; determinați doar CMI." },
+                { name: "Linezolid", zone: { S: 21, R: 21 }, mic: { S: 4, R: 4 }, comment: "Oxazolidinonă." }
             ],
             "Enterococcus faecalis": [
                 { name: "Ampicilină", zone: { S: 10, R: 10 }, mic: { S: 4, R: 8 }, comment: "Inerent REZISTENT la Cefalosporine, Clindamicină, Cotrimoxazol!" },
                 { name: "Vancomicină", zone: { S: 12, R: 12 }, mic: { S: 4, R: 4 }, comment: "Zona < 12mm indică suspiciune de VRE (fenotip vanA/vanB)." },
-                { name: "Gentamicină (High-Level)", zone: { S: 8, R: 8 }, mic: { S: 128, R: 128 }, comment: "HLAR: Test de sinergie cu bactericide pe perete celular." },
-                { name: "Linezolid", zone: { S: 20, R: 20 }, mic: { S: 4, R: 4 }, comment: "Activ pe tulpini VRE." }
+                { name: "Teicoplanină", zone: { S: 16, R: 16 }, mic: { S: 2, R: 2 }, comment: "Diferențiere fenotip vanA (R la teicoplanină) vs vanB." },
+                { name: "Gentamicină (High-Level HLAR)", zone: { S: 8, R: 8 }, mic: { S: 128, R: 128 }, comment: "Test de sinergie cu bactericide pe perete celular." },
+                { name: "Linezolid", zone: { S: 20, R: 20 }, mic: { S: 4, R: 4 }, comment: "Activ pe tulpini VRE." },
+                { name: "Nitrofurantoină (doar UTI)", zone: { S: 15, R: 15 }, mic: { S: 64, R: 64 }, comment: "Aprobat pentru cistite necomplicate." }
+            ],
+            "Enterococcus faecium": [
+                { name: "Ampicilină", zone: { S: 8, R: 8 }, mic: { S: 4, R: 4 }, comment: "Majoritatea tulpinilor de E. faecium sunt rezistente la Ampicilină." },
+                { name: "Vancomicină", zone: { S: 12, R: 12 }, mic: { S: 4, R: 4 }, comment: "Evaluare VRE." },
+                { name: "Teicoplanină", zone: { S: 16, R: 16 }, mic: { S: 2, R: 2 }, comment: "Glicopeptid." },
+                { name: "Linezolid", zone: { S: 20, R: 20 }, mic: { S: 4, R: 4 }, comment: "Agent de rezervă pentru VRE." }
             ],
             "Streptococcus pneumoniae": [
-                { name: "Oxacilină (Screening Penicilină)", zone: { S: 20, R: 20 }, mic: { S: 0.06, R: 0.06 }, comment: "Diametru Oxacilină 1μg ≥20mm confirmă sensibilitatea la Penicilină și Amoxicilină." },
+                { name: "Oxacilină 1µg (Screening Penicilină)", zone: { S: 20, R: 20 }, mic: { S: 0.06, R: 0.06 }, comment: "Zone ≥20mm confirmă sensibilitatea la Penicilină și Amoxicilină." },
+                { name: "Penicilină G (Meningită)", zone: { S: 0, R: 0 }, mic: { S: 0.06, R: 0.06 }, comment: "În meningită, CMI > 0.06 mg/L se raportează Rezistent." },
+                { name: "Penicilină G (Non-Meningită)", zone: { S: 0, R: 0 }, mic: { S: 0.5, R: 2 }, comment: "În infecții respiratorii, CMI ≤ 0.5 mg/L este Sensibil." },
+                { name: "Ceftriaxon", zone: { S: 26, R: 23 }, mic: { S: 0.5, R: 2 }, comment: "Cefalosporină gen. 3." },
                 { name: "Eritromicină", zone: { S: 22, R: 19 }, mic: { S: 0.25, R: 0.5 }, comment: "Predice rezistența la Azitromicină și Claritromicină." },
                 { name: "Levofloxacin", zone: { S: 19, R: 16 }, mic: { S: 2, R: 2 }, comment: "Fluoroquinolonă respiratorie." },
                 { name: "Vancomicină", zone: { S: 12, R: 12 }, mic: { S: 2, R: 2 }, comment: "Glicopeptid." }
             ],
-            "Acinetobacter baumannii": [
-                { name: "Meropenem", zone: { S: 21, R: 15 }, mic: { S: 2, R: 8 }, comment: "Carbapenem." },
-                { name: "Amikacină", zone: { S: 18, R: 15 }, mic: { S: 8, R: 16 }, comment: "Aminoglicozid." },
-                { name: "Colistină", zone: { S: 0, R: 0 }, mic: { S: 2, R: 2 }, comment: "Doar determinarea CMI este validă conform EUCAST." }
+            "Streptococcus pyogenes (Grup A)": [
+                { name: "Penicilină V / G", zone: { S: 18, R: 18 }, mic: { S: 0.25, R: 0.25 }, comment: "Sensibil universal! Nu s-a documentat rezistență clinică la Penicilină." },
+                { name: "Eritromicină", zone: { S: 21, R: 18 }, mic: { S: 0.25, R: 0.5 }, comment: "Macrolid." },
+                { name: "Clindamicină", zone: { S: 19, R: 19 }, mic: { S: 0.5, R: 0.5 }, comment: "Lincosamidă (inclusiv efect anti-toxinic în fasciită necrozantă)." }
+            ],
+            "Streptococcus agalactiae (Grup B)": [
+                { name: "Penicilină G", zone: { S: 18, R: 18 }, mic: { S: 0.25, R: 0.25 }, comment: "Sensibil universal la peniciline." },
+                { name: "Eritromicină", zone: { S: 21, R: 18 }, mic: { S: 0.25, R: 0.5 }, comment: "Testare recomandată la paciente alergice la penicilină." },
+                { name: "Clindamicină", zone: { S: 19, R: 19 }, mic: { S: 0.5, R: 0.5 }, comment: "Testare D-test dacă eritromicina este rezistentă." },
+                { name: "Vancomicină", zone: { S: 12, R: 12 }, mic: { S: 2, R: 2 }, comment: "Alternativă în caz de anafilaxie la beta-lactame." }
             ]
         };
 
@@ -323,7 +422,6 @@
                 ? "px-3 py-1 rounded-lg font-bold bg-white text-blue-700 shadow-sm transition-all"
                 : "px-3 py-1 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition-all";
 
-            // Recalculate input modes
             currentAntibioticsList.forEach(item => item.mode = mode);
             renderBatchForm();
         }
@@ -332,7 +430,6 @@
             const org = document.getElementById('organismSelect').value;
             const atbs = eucastDatabase[org] || [];
             
-            // Deep copy items and assign default mode
             currentAntibioticsList = atbs.map((atb, idx) => ({
                 id: idx,
                 ...atb,
@@ -377,7 +474,6 @@
                             <span class="absolute right-2 top-1.5 text-[10px] text-slate-400 font-sans font-bold">${atb.mode === 'zone' ? 'mm' : 'mg/L'}</span>
                         </div>
 
-                        <!-- Local Mode Switch -->
                         <button type="button" onclick="toggleLocalMode(${index})" class="px-2 py-1 text-[10px] bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-md transition-all">
                             ${atb.mode === 'zone' ? 'Switch CMI' : 'Switch Disc'}
                         </button>
@@ -385,7 +481,7 @@
 
                     <div class="text-[10px] text-slate-400 flex justify-between">
                         <span>Disc: ${atb.zone.S === 0 ? 'N/A' : `S≥${atb.zone.S} R<${atb.zone.R}`}</span>
-                        <span>CMI: S≤${atb.mic.S} R>${atb.mic.R}</span>
+                        <span>CMI: ${atb.mic.S === 0 ? 'N/A' : `S≤${atb.mic.S} R>${atb.mic.R}`}</span>
                     </div>
                 `;
                 container.appendChild(card);
@@ -423,14 +519,21 @@
                 if (atb.zone.S === 0 && atb.zone.R === 0) {
                     return {
                         code: 'INVALID',
-                        category: 'Metodă Invalida',
-                        comment: 'EUCAST: Difuzia pe disc NU este validă pentru acest antibiotic/patogen. Folosiți doar CMI!'
+                        category: 'Metodă Invalida / Inerent R',
+                        comment: atb.comment || 'EUCAST: Difuzia pe disc NU este validă. Determinați CMI sau microorganismul este inerent rezistent.'
                     };
                 }
                 if (val >= atb.zone.S) return { code: 'S', category: 'Sensibil', comment: atb.comment };
                 if (val < atb.zone.R) return { code: 'R', category: 'Rezistent', comment: atb.comment };
                 return { code: 'I', category: 'Sensibil expunere crescută', comment: atb.comment };
             } else { // CMI Mode
+                if (atb.mic.S === 0 && atb.mic.R === 0) {
+                    return {
+                        code: 'R',
+                        category: 'Rezistent Natural',
+                        comment: atb.comment
+                    };
+                }
                 if (val <= atb.mic.S) return { code: 'S', category: 'Sensibil', comment: atb.comment };
                 if (val > atb.mic.R) return { code: 'R', category: 'Rezistent', comment: atb.comment };
                 return { code: 'I', category: 'Sensibil expunere crescută', comment: atb.comment };
@@ -461,7 +564,6 @@
         }
 
         function generateFinalReport() {
-            // Header Patient Info
             document.getElementById('repPatientName').textContent = document.getElementById('patientName').value.trim() || 'Necompletat';
             document.getElementById('repSampleType').textContent = document.getElementById('sampleType').value;
             document.getElementById('repSampleId').textContent = document.getElementById('sampleId').value.trim() || '--';
@@ -470,7 +572,6 @@
             const tbody = document.getElementById('reportTableBody');
             tbody.innerHTML = '';
 
-            // Filter only populated entries
             const populated = currentAntibioticsList.filter(a => a.value !== '' && !isNaN(parseFloat(a.value)));
 
             if (populated.length === 0) {
@@ -497,7 +598,7 @@
 
                 const bpString = item.mode === 'zone' 
                     ? (item.zone.S === 0 ? "Disc invalid (Doar CMI)" : `S ≥ ${item.zone.S} mm | R < ${item.zone.R} mm`)
-                    : `S ≤ ${item.mic.S} mg/L | R > ${item.mic.R} mg/L`;
+                    : (item.mic.S === 0 ? "Inerent Rezistent" : `S ≤ ${item.mic.S} mg/L | R > ${item.mic.R} mg/L`);
 
                 tr.innerHTML = `
                     <td class="py-3 px-3 font-bold text-slate-800">${item.name}</td>
@@ -515,7 +616,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Smooth scroll to report
             document.getElementById('finalReportSection').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
